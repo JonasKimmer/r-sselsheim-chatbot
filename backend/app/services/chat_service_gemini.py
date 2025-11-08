@@ -50,10 +50,10 @@ Antworte auf Deutsch und sei präzise."""
             "max_output_tokens": settings.max_tokens,
         }
 
+        # Create model (google-generativeai >= 0.8.0)
         self.model = genai.GenerativeModel(
             model_name=settings.gemini_model,
-            generation_config=generation_config,
-            system_instruction=self.SYSTEM_PROMPT
+            generation_config=generation_config
         )
 
         self.rag_service = RAGService(db)
@@ -168,6 +168,18 @@ Antworte auf Deutsch und sei präzise."""
 
             # Build chat history for Gemini
             chat_history = []
+
+            # Add system prompt as first message if no history exists
+            if not history:
+                chat_history.append({
+                    "role": "user",
+                    "parts": [self.SYSTEM_PROMPT]
+                })
+                chat_history.append({
+                    "role": "model",
+                    "parts": ["Verstanden. Ich bin bereit, Fragen zu den Dienstleistungen der Stadt Rüsselsheim am Main zu beantworten."]
+                })
+
             for msg in history[-10:]:  # Last 10 messages
                 role = "user" if msg.role == MessageRole.USER else "model"
                 chat_history.append({
