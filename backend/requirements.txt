@@ -16,6 +16,9 @@ anthropic==0.18.0
 # For Gemini (free tier available)
 google-generativeai==0.7.2
 
+# For Ollama (100% free, local models)
+ollama==0.1.7
+
 # Vector & Embeddings
 sentence-transformers==2.3.1
 openai==1.12.0

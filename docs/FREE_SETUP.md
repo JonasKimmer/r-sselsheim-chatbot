@@ -2,14 +2,28 @@
 
 Dieser Chatbot kann **komplett kostenlos** betrieben werden!
 
+## 🦙 NEU: Ollama - Die beste kostenlose Option!
+
+**Wir empfehlen jetzt Ollama statt Gemini!**
+
+- ✅ 100% lokal & privat (DSGVO-konform)
+- ✅ Unbegrenzte Anfragen (keine API-Limits)
+- ✅ Offline-fähig (kein Internet nötig)
+- ✅ Sehr schnell (besonders auf M1/M2/M3/M4 Macs)
+
+**👉 Siehe [OLLAMA_SETUP.md](./OLLAMA_SETUP.md) für die vollständige Anleitung!**
+
+---
+
 ## 💰 Kostenvergleich
 
-| Komponente | Kostenlose Option | Kostenpflichtige Option |
-|------------|------------------|------------------------|
-| **LLM (Chat)** | Google Gemini (kostenlos) | Anthropic Claude (~$3 per 1M tokens) |
-| **Embeddings** | Lokale Modelle (kostenlos) | OpenAI (~$0.13 per 1K docs) |
-| **Datenbank** | PostgreSQL (open source) | PostgreSQL (open source) |
-| **Hosting** | Docker lokal oder Cloud Free Tier | - |
+| Komponente | Option 1 (Beste) | Option 2 | Option 3 (Bezahlt) |
+|------------|------------------|----------|-------------------|
+| **LLM (Chat)** | Ollama (100% lokal) | Google Gemini (Cloud, kostenlos) | Anthropic Claude (~$3 per 1M tokens) |
+| **Embeddings** | Lokale Modelle (kostenlos) | Lokale Modelle (kostenlos) | OpenAI (~$0.13 per 1K docs) |
+| **Datenbank** | PostgreSQL (open source) | PostgreSQL (open source) | PostgreSQL (open source) |
+| **Hosting** | Docker lokal | Docker lokal oder Cloud Free Tier | Cloud |
+| **Datenschutz** | ⭐⭐⭐⭐⭐ Perfekt | ⭐⭐ Google Server | ⭐⭐ Anthropic Server |
 
 ## 🎯 Kostenlose Konfiguration
 

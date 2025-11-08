@@ -28,8 +28,10 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ruesselsheim_bot}:${POSTGRES_PASSWORD:-change_me_in_production}@postgres:5432/${POSTGRES_DB:-ruesselsheim_chatbot}
       # LLM Provider
-      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       # Embeddings
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}

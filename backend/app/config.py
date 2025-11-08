@@ -22,13 +22,17 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://ruesselsheim_bot:change_me_in_production@postgres:5432/ruesselsheim_chatbot"
 
     # LLM Provider Configuration
-    llm_provider: str = "gemini"  # "gemini" (free) or "claude" (paid)
+    llm_provider: str = "ollama"  # "ollama" (free, local), "gemini" (free), or "claude" (paid)
 
     # Anthropic API (only needed if llm_provider = "claude")
     anthropic_api_key: str = ""
 
     # Google Gemini API (only needed if llm_provider = "gemini")
     gemini_api_key: str = ""
+
+    # Ollama Configuration (only needed if llm_provider = "ollama")
+    ollama_host: str = "http://127.0.0.1:11434"
+    ollama_model: str = "llama3.1:8b"  # or llama3.2:3b (faster), llama3.1:70b (better quality)
 
     # OpenAI API (optional - only needed if using OpenAI embeddings)
     openai_api_key: str = ""

@@ -18,6 +18,9 @@ def get_chat_service(db: Session):
     if settings.llm_provider == "gemini":
         from ..services.chat_service_gemini import GeminiChatService
         return GeminiChatService(db)
+    elif settings.llm_provider == "ollama":
+        from ..services.chat_service_ollama import OllamaChatService
+        return OllamaChatService(db)
     else:
         from ..services.chat_service import ChatService
         return ChatService(db)
