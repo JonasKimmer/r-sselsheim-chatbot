@@ -12,10 +12,6 @@ pgvector==0.2.5
 # AI & LLM
 # For Claude (optional - only if LLM_PROVIDER=claude)
 anthropic==0.18.0
-langchain==0.1.6
-langchain-anthropic==0.1.1
-langchain-community==0.0.20
-langchain-postgres==0.0.3
 
 # For Gemini (free tier available)
 google-generativeai==0.3.2
