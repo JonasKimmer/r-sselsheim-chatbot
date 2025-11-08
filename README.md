@@ -86,8 +86,8 @@ r-sselsheim-chatbot/
 ### Voraussetzungen
 
 - Docker & Docker Compose
-- Anthropic API Key (Claude)
-- OpenAI API Key (für Embeddings)
+- Anthropic API Key (Claude) - **ERFORDERLICH**
+- OpenAI API Key - **OPTIONAL** (nur bei OpenAI Embeddings, Standard nutzt lokale Embeddings)
 
 ### Installation
 
@@ -102,11 +102,21 @@ r-sselsheim-chatbot/
    cp .env.example .env
    ```
 
-   Bearbeiten Sie die `.env` Datei und fügen Sie Ihre API-Keys hinzu:
-   ```
+   Bearbeiten Sie die `.env` Datei:
+   ```env
+   # ERFORDERLICH - für Chat-Antworten
    ANTHROPIC_API_KEY=your_anthropic_key_here
-   OPENAI_API_KEY=your_openai_key_here
+
+   # OPTIONAL - Standard nutzt lokale Embeddings (kostenlos)
+   EMBEDDING_PROVIDER=local
+
+   # Nur wenn Sie OpenAI Embeddings nutzen möchten:
+   # EMBEDDING_PROVIDER=openai
+   # OPENAI_API_KEY=your_openai_key_here
    ```
+
+   > 💡 **Tipp:** Der Standard nutzt **lokale Embeddings** (kostenlos, kein API-Key nötig).
+   > Siehe [docs/EMBEDDINGS.md](docs/EMBEDDINGS.md) für Details zu Embedding-Optionen.
 
 3. **Mit Make installieren (empfohlen)**
    ```bash
@@ -306,6 +316,38 @@ pytest
 cd frontend
 npm test
 ```
+
+## ❓ FAQ
+
+### Brauche ich einen OpenAI API-Key?
+
+**Nein!** Der Standard nutzt lokale Embeddings (kostenlos). Sie benötigen **nur** einen Anthropic API-Key für Claude.
+
+### Kann ich Google Gemini nutzen?
+
+Ja, aber Sie müssen einen eigenen Embedding-Service implementieren. Siehe [docs/EMBEDDINGS.md](docs/EMBEDDINGS.md) für Details.
+
+### Was ist der Unterschied zwischen lokalen und OpenAI Embeddings?
+
+- **Lokal**: Kostenlos, datenschutzfreundlich, sehr gut für Deutsch
+- **OpenAI**: Minimal bessere Qualität, aber kostenpflichtig (~$0.13 per 1000 Dokumente)
+
+Für kommunale Anwendungen sind lokale Embeddings vollkommen ausreichend.
+
+### Wie wechsle ich zwischen Embedding-Providern?
+
+1. `.env` anpassen: `EMBEDDING_PROVIDER=local` oder `openai`
+2. Dimension in `backend/app/models/document.py` anpassen
+3. Datenbank neu initialisieren
+4. Daten neu importieren
+
+Details: [docs/EMBEDDINGS.md](docs/EMBEDDINGS.md)
+
+### Welches lokale Embedding-Modell soll ich nutzen?
+
+Für deutsche Texte empfehlen wir:
+- **Standard**: `paraphrase-multilingual-MiniLM-L12-v2` (schnell, gute Qualität)
+- **Bessere Qualität**: `paraphrase-multilingual-mpnet-base-v2` (langsamer, sehr gut)
 
 ## 🤝 Beitragen
 

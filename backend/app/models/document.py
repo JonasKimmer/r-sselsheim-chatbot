@@ -6,7 +6,14 @@ from .base import Base, TimestampMixin
 
 
 class Document(Base, TimestampMixin):
-    """Document model with vector embeddings."""
+    """Document model with vector embeddings.
+
+    Note: The embedding dimension is set to 384 by default (for local embeddings).
+    If using OpenAI embeddings (1536 dimensions), you need to:
+    1. Drop the existing documents table
+    2. Change the dimension below to 1536
+    3. Recreate the tables
+    """
 
     __tablename__ = "documents"
 
@@ -16,7 +23,8 @@ class Document(Base, TimestampMixin):
     category = Column(String(100), nullable=False, index=True)
     source = Column(String(500))
     metadata = Column(Text)  # JSON as text
-    embedding = Column(Vector(1536))  # OpenAI embeddings dimension
+    embedding = Column(Vector(384))  # Default: local embeddings (384 dim)
+                                      # For OpenAI: change to 1536
 
     def __repr__(self) -> str:
         """String representation."""

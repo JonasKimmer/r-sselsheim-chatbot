@@ -24,15 +24,33 @@ class Settings(BaseSettings):
     # Anthropic API
     anthropic_api_key: str
 
+    # OpenAI API (optional - only needed if using OpenAI embeddings)
+    openai_api_key: str = ""
+
     # Application
     environment: str = "development"
     log_level: str = "INFO"
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
 
+    # Embeddings Configuration
+    embedding_provider: str = "local"  # "local" or "openai"
+    # For OpenAI embeddings:
+    openai_embedding_model: str = "text-embedding-3-small"
+    openai_embedding_dim: int = 1536
+    # For local embeddings:
+    local_embedding_model: str = "paraphrase-multilingual-MiniLM-L12-v2"
+    local_embedding_dim: int = 384
+
     # Vector DB
-    embedding_model: str = "text-embedding-3-small"
     chunk_size: int = 1000
     chunk_overlap: int = 200
+
+    @property
+    def embedding_dimension(self) -> int:
+        """Get current embedding dimension based on provider."""
+        if self.embedding_provider == "openai":
+            return self.openai_embedding_dim
+        return self.local_embedding_dim
 
     # Claude Model
     claude_model: str = "claude-3-5-sonnet-20241022"

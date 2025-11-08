@@ -5,7 +5,6 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..models.document import Document
-from .embedding_service import EmbeddingService
 from ..config import get_settings
 
 logger = logging.getLogger(__name__)
@@ -22,7 +21,16 @@ class RAGService:
             db: Database session
         """
         self.db = db
-        self.embedding_service = EmbeddingService()
+
+        # Choose embedding service based on configuration
+        if settings.embedding_provider == "openai":
+            from .embedding_service import EmbeddingService
+            self.embedding_service = EmbeddingService()
+            logger.info("Using OpenAI embeddings")
+        else:
+            from .embedding_service_local import LocalEmbeddingService
+            self.embedding_service = LocalEmbeddingService(settings.local_embedding_model)
+            logger.info("Using local embeddings")
 
     def add_document(
         self,
