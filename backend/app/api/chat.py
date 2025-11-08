@@ -46,7 +46,7 @@ async def chat(
         # Use provided session_id or create new session
         session_id = request.session_id or ""
 
-        result = chat_service.chat(
+        result = await chat_service.chat(
             session_id=session_id,
             message=request.message
         )

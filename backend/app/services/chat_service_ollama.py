@@ -120,7 +120,7 @@ Antworte auf Deutsch und sei präzise."""
         else:
             return "information"
 
-    def chat(
+    async def chat(
         self,
         session_id: str,
         message: str
