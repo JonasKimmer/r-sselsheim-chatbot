@@ -272,7 +272,7 @@ Antworte auf Deutsch und sei präzise."""
 
             # If we have API data, add instruction to use it
             if api_data:
-                user_message += "\n\nBitte nutze die oben bereitgestellten API-Daten, um die Frage zu beantworten."
+                user_message += "\n\n⚠️ WICHTIG: Die oben bereitgestellten API-Daten enthalten die vollständige Antwort. Gib diese Informationen DIREKT und VOLLSTÄNDIG an den Benutzer weiter, ohne sie zu interpretieren, umzuformulieren oder zu kürzen. Behalte alle Formatierungen, Links und Emojis bei."
 
             # Get response from Gemini
             response = chat.send_message(user_message)
