@@ -7,7 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .config import get_settings
 from .db import init_db
-from .api import chat_router, documents_router, health_router
+from .api import (
+    chat_router,
+    documents_router,
+    health_router,
+    weather_router,
+    maps_router,
+    traffic_router
+)
 
 # Configure logging
 logging.basicConfig(
@@ -58,6 +65,9 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(chat_router)
 app.include_router(documents_router)
+app.include_router(weather_router)
+app.include_router(maps_router)
+app.include_router(traffic_router)
 
 
 @app.get("/")

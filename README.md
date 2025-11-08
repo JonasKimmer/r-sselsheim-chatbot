@@ -3,6 +3,8 @@
 Ein KI-gestützter Chatbot für die Stadt Rüsselsheim am Main, der Bürgerinnen und Bürgern bei Fragen zu städtischen Dienstleistungen hilft.
 
 > 💰 **NEU:** Jetzt **100% kostenlos** nutzbar mit Google Gemini! Siehe [Kostenlose Setup-Anleitung](docs/FREE_SETUP.md)
+>
+> 🆕 **NEUE FEATURES:** Kostenlose APIs für Wetter, Maps und Verkehr! Siehe [API-Dokumentation](docs/FREE_APIS.md)
 
 ## 🎯 Features
 
@@ -16,6 +18,9 @@ Ein KI-gestützter Chatbot für die Stadt Rüsselsheim am Main, der Bürgerinnen
 - ✅ **Lokale oder Cloud Embeddings** - vollständig konfigurierbar
 - ✅ **PostgreSQL** mit pgvector für Vektorspeicherung
 - ✅ **100% kostenlos nutzbar** mit Gemini + lokalen Embeddings
+- ✅ **🌤️ Wetter-API** - Aktuelle Wetterdaten und Vorhersagen (Open-Meteo)
+- ✅ **🗺️ Maps-API** - Geocoding und Ortssuche (OpenStreetMap/Nominatim)
+- ✅ **🚦 Verkehrs-API** - Blitzer und Verkehrsinformationen für Rüsselsheim
 
 ## 🏗️ Tech-Stack
 
@@ -46,7 +51,10 @@ r-sselsheim-chatbot/
 │   │   ├── api/               # API Endpoints
 │   │   │   ├── chat.py        # Chat-Endpoints
 │   │   │   ├── documents.py   # Dokumenten-Management
-│   │   │   └── health.py      # Health-Check
+│   │   │   ├── health.py      # Health-Check
+│   │   │   ├── weather.py     # Wetter-API
+│   │   │   ├── maps.py        # Maps & Geocoding-API
+│   │   │   └── traffic.py     # Verkehrs-API (Blitzer)
 │   │   ├── db/                # Datenbankverbindung
 │   │   ├── models/            # SQLAlchemy Models
 │   │   │   ├── chat.py        # Chat & Session Models
@@ -54,7 +62,10 @@ r-sselsheim-chatbot/
 │   │   ├── services/          # Business Logic
 │   │   │   ├── chat_service.py      # Chat-Verwaltung
 │   │   │   ├── rag_service.py       # RAG-System
-│   │   │   └── embedding_service.py # Embeddings
+│   │   │   ├── embedding_service.py # Embeddings
+│   │   │   ├── weather_service.py   # Wetter-Service
+│   │   │   ├── maps_service.py      # Maps-Service
+│   │   │   └── traffic_service.py   # Verkehrs-Service
 │   │   ├── config.py          # Konfiguration
 │   │   └── main.py            # FastAPI App
 │   ├── scripts/
@@ -241,6 +252,46 @@ Erstellt ein neues Dokument in der Wissensdatenbank.
   "limit": 5
 }
 ```
+
+### Wetter Endpoints
+
+**GET /api/weather/**
+
+Aktuelle Wetterdaten und 3-Tage-Vorhersage für Rüsselsheim. Kostenlos via Open-Meteo API.
+
+**GET /api/weather/forecast?days=7**
+
+Detaillierte Wettervorhersage (1-7 Tage).
+
+### Maps Endpoints
+
+**GET /api/maps/geocode?address=Rathaus+Rüsselsheim**
+
+Wandelt Adressen in Koordinaten um (Geocoding). Kostenlos via OpenStreetMap/Nominatim.
+
+**GET /api/maps/reverse-geocode?lat=49.9897&lon=8.4189**
+
+Wandelt Koordinaten in Adressen um (Reverse Geocoding).
+
+**GET /api/maps/nearby?lat=49.9897&lon=8.4189&query=restaurant&radius=2000**
+
+Sucht Orte in der Nähe (z.B. Restaurants, Apotheken, Parkplätze).
+
+### Verkehr Endpoints
+
+**GET /api/traffic/speed-cameras**
+
+Zeigt bekannte Blitzer in Rüsselsheim und Umgebung.
+
+**GET /api/traffic/nearby-cameras?lat=49.9897&lon=8.4189&radius=5000**
+
+Findet Blitzer im Umkreis.
+
+**GET /api/traffic/info**
+
+Allgemeine Verkehrsinformationen und Sicherheitstipps.
+
+> 📖 **Ausführliche Dokumentation:** Siehe [FREE_APIS.md](docs/FREE_APIS.md) für alle Details und Beispiele
 
 ## 🎨 Features im Detail
 
