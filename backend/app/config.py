@@ -62,7 +62,7 @@ class Settings(BaseSettings):
     # For Claude:
     claude_model: str = "claude-3-5-sonnet-20241022"
     # For Gemini (google-generativeai >= 0.8.0):
-    gemini_model: str = "gemini-1.5-flash-latest"  # free tier: gemini-1.5-flash-latest or gemini-1.5-pro-latest
+    gemini_model: str = "gemini-1.5-flash"  # free tier: gemini-1.5-flash or gemini-1.5-pro
 
     # Common settings
     max_tokens: int = 4096
