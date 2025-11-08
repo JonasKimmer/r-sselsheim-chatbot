@@ -5,6 +5,11 @@ from typing import Dict, Any, Optional
 from .weather_service import get_weather
 from .maps_service import geocode_address, search_nearby
 from .traffic_service import get_speed_cameras, get_traffic_info
+from .transit_service import get_departures, get_connection
+from .waste_service import get_waste_calendar, get_waste_info
+from .fuel_service import get_fuel_prices, get_cheapest_station
+from .holidays_service import get_holidays, is_holiday_today, get_next_holiday
+from .news_service import get_latest_news, search_news
 
 logger = logging.getLogger(__name__)
 
@@ -232,5 +237,25 @@ def detect_api_intent(message: str) -> Optional[str]:
     # Traffic keywords
     if any(word in message_lower for word in ["blitzer", "radarfalle", "geschwindigkeitskontrolle", "tempolimit"]):
         return "traffic"
+
+    # Transit keywords
+    if any(word in message_lower for word in ["bus", "bahn", "zug", "nahverkehr", "rmv", "abfahrt", "verbindung", "öpnv", "haltestelle"]):
+        return "transit"
+
+    # Waste keywords
+    if any(word in message_lower for word in ["müll", "abfall", "tonne", "restmüll", "biomüll", "papier", "gelber sack", "wertstoffhof", "sperrmüll", "abfuhr"]):
+        return "waste"
+
+    # Fuel keywords
+    if any(word in message_lower for word in ["benzin", "diesel", "tanken", "tankstelle", "sprit", "kraftstoff", "e5", "e10", "spritpreis"]):
+        return "fuel"
+
+    # Holiday keywords
+    if any(word in message_lower for word in ["feiertag", "frei", "ferien", "brückentag", "gesetzlicher"]):
+        return "holiday"
+
+    # News keywords
+    if any(word in message_lower for word in ["news", "nachrichten", "neuigkeiten", "presse", "aktuelles", "pressemitteilung"]):
+        return "news"
 
     return None

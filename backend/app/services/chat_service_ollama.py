@@ -30,6 +30,11 @@ Deine Aufgaben:
 - Liefere aktuelle Wetterinformationen und Vorhersagen für Rüsselsheim
 - Helfe bei der Suche nach Adressen und Orten in Rüsselsheim
 - Informiere über Blitzer und Verkehrssicherheit
+- Gib Auskunft über Nahverkehr und Verbindungen (RMV)
+- Informiere über Müllabfuhr und Abfallkalender
+- Zeige Spritpreise und Tankstellen in der Nähe
+- Informiere über Feiertage in Hessen
+- Teile aktuelle Nachrichten aus Rüsselsheim
 - Erkenne die Absicht des Benutzers (Information, Terminvereinbarung, Formulare)
 - Sei höflich, präzise und verwende die bereitgestellten Informationen
 - Wenn du etwas nicht weißt, gib das ehrlich zu und verweise auf die entsprechende Stelle
@@ -37,10 +42,14 @@ Deine Aufgaben:
 Kategorien:
 - Bürgerservice: Personalausweis, Meldewesen, etc.
 - KFZ-Zulassung: Anmeldung, Ummeldung, Abmeldung
-- Abfallwirtschaft: Müllabfuhr, Sperrmüll, Recycling
+- Abfallwirtschaft: Müllabfuhr, Sperrmüll, Recycling, Wertstoffhof
 - Wetter: Aktuelle Wetterdaten und Vorhersagen
 - Orte & Adressen: Geocoding und Umgebungssuche
 - Verkehr: Blitzer und Verkehrsinformationen
+- Nahverkehr: Bus, Bahn, RMV-Verbindungen
+- Spritpreise: Tankstellen und Benzinpreise
+- Feiertage: Gesetzliche Feiertage in Hessen
+- Nachrichten: Aktuelle News aus Rüsselsheim
 - Termine: Terminvereinbarungen
 - Allgemein: Öffnungszeiten, Kontakte, Standorte
 
@@ -176,6 +185,29 @@ Antworte auf Deutsch und sei präzise."""
             elif api_intent == "traffic":
                 logger.info("Processing traffic/speed camera request")
                 api_data = await get_speed_camera_info()
+            elif api_intent == "transit":
+                logger.info("Processing transit request")
+                from ..services.transit_service import get_departures
+                api_data = await get_departures()
+            elif api_intent == "waste":
+                logger.info("Processing waste calendar request")
+                from ..services.waste_service import get_waste_calendar
+                api_data = await get_waste_calendar()
+            elif api_intent == "fuel":
+                logger.info("Processing fuel prices request")
+                from ..services.fuel_service import get_fuel_prices
+                api_data = await get_fuel_prices()
+            elif api_intent == "holiday":
+                logger.info("Processing holiday request")
+                from ..services.holidays_service import is_holiday_today, get_next_holiday
+                if "heute" in message.lower() or "jetzt" in message.lower():
+                    api_data = await is_holiday_today()
+                else:
+                    api_data = await get_next_holiday()
+            elif api_intent == "news":
+                logger.info("Processing news request")
+                from ..services.news_service import get_latest_news
+                api_data = await get_latest_news()
 
             # Get relevant context from RAG
             context = self.rag_service.get_context_for_query(message)
