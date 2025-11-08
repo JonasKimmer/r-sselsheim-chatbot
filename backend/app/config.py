@@ -21,8 +21,14 @@ class Settings(BaseSettings):
     postgres_db: str = "ruesselsheim_chatbot"
     database_url: str = "postgresql://ruesselsheim_bot:change_me_in_production@postgres:5432/ruesselsheim_chatbot"
 
-    # Anthropic API
-    anthropic_api_key: str
+    # LLM Provider Configuration
+    llm_provider: str = "gemini"  # "gemini" (free) or "claude" (paid)
+
+    # Anthropic API (only needed if llm_provider = "claude")
+    anthropic_api_key: str = ""
+
+    # Google Gemini API (only needed if llm_provider = "gemini")
+    gemini_api_key: str = ""
 
     # OpenAI API (optional - only needed if using OpenAI embeddings)
     openai_api_key: str = ""
@@ -52,8 +58,13 @@ class Settings(BaseSettings):
             return self.openai_embedding_dim
         return self.local_embedding_dim
 
-    # Claude Model
+    # LLM Model Configuration
+    # For Claude:
     claude_model: str = "claude-3-5-sonnet-20241022"
+    # For Gemini:
+    gemini_model: str = "gemini-1.5-flash"  # free tier: gemini-1.5-flash or gemini-1.5-pro
+
+    # Common settings
     max_tokens: int = 4096
     temperature: float = 0.7
 

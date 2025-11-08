@@ -5,11 +5,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from ..db import get_db
-from ..services import ChatService
+from ..config import get_settings
 from .schemas import ChatRequest, ChatResponse, ChatHistoryResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/chat", tags=["chat"])
+settings = get_settings()
+
+
+def get_chat_service(db: Session):
+    """Get the appropriate chat service based on configuration."""
+    if settings.llm_provider == "gemini":
+        from ..services.chat_service_gemini import GeminiChatService
+        return GeminiChatService(db)
+    else:
+        from ..services.chat_service import ChatService
+        return ChatService(db)
 
 
 @router.post("/", response_model=ChatResponse)
@@ -27,7 +38,7 @@ async def chat(
         Chat response
     """
     try:
-        chat_service = ChatService(db)
+        chat_service = get_chat_service(db)
 
         # Use provided session_id or create new session
         session_id = request.session_id or ""
@@ -59,7 +70,7 @@ async def get_history(
         Chat history
     """
     try:
-        chat_service = ChatService(db)
+        chat_service = get_chat_service(db)
         messages = chat_service.get_session_history(session_id)
 
         return [

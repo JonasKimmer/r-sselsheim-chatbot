@@ -2,6 +2,8 @@
 
 Ein KI-gestützter Chatbot für die Stadt Rüsselsheim am Main, der Bürgerinnen und Bürgern bei Fragen zu städtischen Dienstleistungen hilft.
 
+> 💰 **NEU:** Jetzt **100% kostenlos** nutzbar mit Google Gemini! Siehe [Kostenlose Setup-Anleitung](docs/FREE_SETUP.md)
+
 ## 🎯 Features
 
 ### Phase 1 (Implementiert)
@@ -10,16 +12,18 @@ Ein KI-gestützter Chatbot für die Stadt Rüsselsheim am Main, der Bürgerinnen
 - ✅ **Chat-API** mit Multi-Turn-Gesprächen
 - ✅ **Intent-Erkennung** (Information, Termin, Formular)
 - ✅ **Web-Interface** mit moderner Chat-UI
-- ✅ **Claude AI Integration** für natürliche Konversation
+- ✅ **Flexible LLM-Integration** - Google Gemini (kostenlos) oder Claude (bezahlt)
+- ✅ **Lokale oder Cloud Embeddings** - vollständig konfigurierbar
 - ✅ **PostgreSQL** mit pgvector für Vektorspeicherung
+- ✅ **100% kostenlos nutzbar** mit Gemini + lokalen Embeddings
 
 ## 🏗️ Tech-Stack
 
 ### Backend
 - **FastAPI** - Modernes Python Web Framework
 - **PostgreSQL + pgvector** - Vektordatenbank
-- **Anthropic Claude** - LLM für Konversation
-- **OpenAI Embeddings** - Textvektorisierung
+- **LLM:** Google Gemini (kostenlos) ODER Anthropic Claude (bezahlt)
+- **Embeddings:** Lokale Modelle (kostenlos) ODER OpenAI (bezahlt)
 - **SQLAlchemy** - ORM für Datenbankzugriff
 - **Pydantic** - Datenvalidierung
 
@@ -86,8 +90,11 @@ r-sselsheim-chatbot/
 ### Voraussetzungen
 
 - Docker & Docker Compose
-- Anthropic API Key (Claude) - **ERFORDERLICH**
-- OpenAI API Key - **OPTIONAL** (nur bei OpenAI Embeddings, Standard nutzt lokale Embeddings)
+- **Eine** der folgenden API-Keys:
+  - **Google Gemini API Key** - **KOSTENLOS** (empfohlen) 🆓
+  - **ODER** Anthropic Claude API Key - bezahlt
+
+> 💡 **Empfehlung:** Nutzen Sie Gemini für kostenlosen Betrieb! Siehe [Kostenlose Setup-Anleitung](docs/FREE_SETUP.md)
 
 ### Installation
 
@@ -102,21 +109,22 @@ r-sselsheim-chatbot/
    cp .env.example .env
    ```
 
-   Bearbeiten Sie die `.env` Datei:
+   **Option A: Kostenlos mit Gemini (empfohlen)** 🆓
    ```env
-   # ERFORDERLICH - für Chat-Antworten
-   ANTHROPIC_API_KEY=your_anthropic_key_here
-
-   # OPTIONAL - Standard nutzt lokale Embeddings (kostenlos)
-   EMBEDDING_PROVIDER=local
-
-   # Nur wenn Sie OpenAI Embeddings nutzen möchten:
-   # EMBEDDING_PROVIDER=openai
-   # OPENAI_API_KEY=your_openai_key_here
+   LLM_PROVIDER=gemini
+   GEMINI_API_KEY=your_gemini_key_here  # Kostenlos bei https://makersuite.google.com/app/apikey
+   EMBEDDING_PROVIDER=local  # Lokale Embeddings (kostenlos)
    ```
 
-   > 💡 **Tipp:** Der Standard nutzt **lokale Embeddings** (kostenlos, kein API-Key nötig).
-   > Siehe [docs/EMBEDDINGS.md](docs/EMBEDDINGS.md) für Details zu Embedding-Optionen.
+   **Option B: Mit Claude (bezahlt)**
+   ```env
+   LLM_PROVIDER=claude
+   ANTHROPIC_API_KEY=your_anthropic_key_here
+   EMBEDDING_PROVIDER=local  # Lokale Embeddings (kostenlos)
+   ```
+
+   > 💡 **Kostenlos:** [Gemini API-Key erstellen](https://makersuite.google.com/app/apikey) (keine Kreditkarte nötig)
+   > 📖 **Details:** [Kostenlose Setup-Anleitung](docs/FREE_SETUP.md) | [Embedding-Optionen](docs/EMBEDDINGS.md)
 
 3. **Mit Make installieren (empfohlen)**
    ```bash
@@ -319,13 +327,30 @@ npm test
 
 ## ❓ FAQ
 
-### Brauche ich einen OpenAI API-Key?
+### Ist der Chatbot wirklich 100% kostenlos nutzbar?
 
-**Nein!** Der Standard nutzt lokale Embeddings (kostenlos). Sie benötigen **nur** einen Anthropic API-Key für Claude.
+**Ja!** Mit der Gemini + lokale Embeddings Konfiguration entstehen **keine API-Kosten**. Sie brauchen nur einen kostenlosen Gemini API-Key (keine Kreditkarte erforderlich). Siehe [Kostenlose Setup-Anleitung](docs/FREE_SETUP.md).
 
-### Kann ich Google Gemini nutzen?
+### Welche API-Keys brauche ich?
 
-Ja, aber Sie müssen einen eigenen Embedding-Service implementieren. Siehe [docs/EMBEDDINGS.md](docs/EMBEDDINGS.md) für Details.
+**Für kostenlosen Betrieb:**
+- ✅ Google Gemini API-Key (kostenlos)
+- ✅ Das war's!
+
+**Optional (für bessere Qualität, aber kostenpflichtig):**
+- Anthropic Claude API-Key (statt Gemini)
+- OpenAI API-Key (nur für Embeddings, wenn nicht lokal)
+
+### Gemini vs. Claude - was ist besser?
+
+| Feature | Gemini (kostenlos) | Claude (bezahlt) |
+|---------|-------------------|------------------|
+| Kosten | **€0/Monat** | ~€30-50/Monat |
+| Qualität | Sehr gut | Exzellent |
+| Deutsch | ✅ Sehr gut | ✅ Exzellent |
+| Limits | 1500 Anfragen/Tag | Praktisch unbegrenzt |
+
+**Empfehlung:** Starten Sie mit Gemini. Upgraden Sie nur bei Bedarf.
 
 ### Was ist der Unterschied zwischen lokalen und OpenAI Embeddings?
 
