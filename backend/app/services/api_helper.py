@@ -54,18 +54,47 @@ async def find_location(query: str) -> str:
     Find a location by address.
 
     Args:
-        query: Address or location name
+        query: Address or location name (or full question)
 
     Returns:
         Formatted location information
     """
     try:
-        results = await geocode_address(query, limit=3)
+        # Extract location name from question
+        # Remove common question patterns
+        search_query = query
+        patterns_to_remove = [
+            "wo liegt ", "wo ist ", "wo finde ich ",
+            "adresse von ", "adresse vom ", "koordinaten von ",
+            "das ", "die ", "der ", "?"
+        ]
+
+        search_query_lower = query.lower()
+        for pattern in patterns_to_remove:
+            if pattern in search_query_lower:
+                # Find the pattern and remove everything before it
+                idx = search_query_lower.find(pattern)
+                if idx >= 0:
+                    search_query = query[idx + len(pattern):]
+                    search_query_lower = search_query.lower()
+
+        # Clean up the query
+        search_query = search_query.strip().rstrip('?')
+
+        # If still empty or too generic, use original
+        if len(search_query) < 3:
+            search_query = query
+
+        # Add Rüsselsheim if not already in query
+        if "rüsselsheim" not in search_query.lower():
+            search_query += " Rüsselsheim"
+
+        results = await geocode_address(search_query, limit=3)
 
         if not results:
-            return f"Ich konnte keine Ergebnisse für '{query}' finden."
+            return f"Ich konnte '{search_query}' nicht finden. Bitte versuchen Sie es mit einem anderen Suchbegriff."
 
-        result = f"📍 Gefundene Orte für '{query}':\n"
+        result = f"📍 Gefundene Orte für '{search_query}':\n"
 
         for i, location in enumerate(results[:3], 1):
             result += f"\n**{i}. {location['display_name']}**"
@@ -74,6 +103,8 @@ async def find_location(query: str) -> str:
             address = location.get('address', {})
             if 'road' in address:
                 result += f"\n- Straße: {address.get('road', '')}"
+            if 'house_number' in address:
+                result += f" {address.get('house_number', '')}"
             if 'postcode' in address:
                 result += f"\n- PLZ: {address.get('postcode', '')}"
             result += "\n"
@@ -189,12 +220,13 @@ def detect_api_intent(message: str) -> Optional[str]:
     if any(word in message_lower for word in ["wetter", "temperatur", "regen", "schnee", "vorhersage", "wettervorhersage", "grad", "warm", "kalt"]):
         return "weather"
 
-    # Location/Maps keywords
-    if any(word in message_lower for word in ["wo ist", "wo liegt", "adresse von", "koordinaten", "finde"]) and not any(word in message_lower for word in ["blitzer", "wetter"]):
+    # Specific location search (e.g., "Wo liegt Restaurant X", "Adresse von Y")
+    # Check this BEFORE nearby search to prioritize specific location queries
+    if any(phrase in message_lower for phrase in ["wo liegt", "wo ist", "adresse von", "adresse vom", "wo finde ich", "koordinaten von"]):
         return "location"
 
-    # Nearby search keywords
-    if any(word in message_lower for word in ["restaurant", "apotheke", "parkplatz", "supermarkt", "café", "arzt", "in der nähe"]):
+    # Nearby search keywords (e.g., "Restaurants in der Nähe")
+    if any(word in message_lower for word in ["in der nähe", "nähe", "nahegelegene", "nahe"]):
         return "nearby"
 
     # Traffic keywords
