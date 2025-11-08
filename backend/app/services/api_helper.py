@@ -72,10 +72,10 @@ async def find_location(query: str) -> str:
         search_query_lower = query.lower()
         for pattern in patterns_to_remove:
             if pattern in search_query_lower:
-                # Find the pattern and remove everything before it
+                # Find the pattern and remove it
                 idx = search_query_lower.find(pattern)
                 if idx >= 0:
-                    search_query = query[idx + len(pattern):]
+                    search_query = search_query[idx + len(pattern):]
                     search_query_lower = search_query.lower()
 
         # Clean up the query
