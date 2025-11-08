@@ -38,7 +38,7 @@ class DocumentCreate(BaseModel):
     content: str = Field(..., min_length=1)
     category: str = Field(..., min_length=1, max_length=100)
     source: Optional[str] = Field(None, max_length=500)
-    metadata: Optional[str] = None
+    doc_metadata: Optional[str] = None
 
 
 class DocumentResponse(BaseModel):

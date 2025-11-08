@@ -22,7 +22,7 @@ class Document(Base, TimestampMixin):
     content = Column(Text, nullable=False)
     category = Column(String(100), nullable=False, index=True)
     source = Column(String(500))
-    metadata = Column(Text)  # JSON as text
+    doc_metadata = Column(Text)  # JSON as text (renamed from 'metadata' to avoid SQLAlchemy conflict)
     embedding = Column(Vector(384))  # Default: local embeddings (384 dim)
                                       # For OpenAI: change to 1536
 

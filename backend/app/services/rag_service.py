@@ -38,7 +38,7 @@ class RAGService:
         content: str,
         category: str,
         source: Optional[str] = None,
-        metadata: Optional[str] = None
+        doc_metadata: Optional[str] = None
     ) -> Document:
         """Add a document to the vector database.
 
@@ -47,7 +47,7 @@ class RAGService:
             content: Document content
             category: Document category
             source: Document source
-            metadata: Additional metadata as JSON string
+            doc_metadata: Additional metadata as JSON string
 
         Returns:
             Created document
@@ -62,7 +62,7 @@ class RAGService:
                 content=content,
                 category=category,
                 source=source,
-                metadata=metadata,
+                doc_metadata=doc_metadata,
                 embedding=embedding
             )
 
@@ -106,7 +106,7 @@ class RAGService:
                     content,
                     category,
                     source,
-                    metadata,
+                    doc_metadata,
                     1 - (embedding <=> :query_embedding) as similarity
                 FROM documents
                 WHERE (:category IS NULL OR category = :category)
@@ -133,7 +133,7 @@ class RAGService:
                     "content": row.content,
                     "category": row.category,
                     "source": row.source,
-                    "metadata": row.metadata,
+                    "doc_metadata": row.doc_metadata,
                     "similarity": float(row.similarity)
                 })
 

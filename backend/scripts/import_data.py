@@ -44,7 +44,7 @@ def import_documents(data_file: str = "../data/ruesselsheim_data.json"):
                 content=doc['content'],
                 category=doc['category'],
                 source=doc.get('source'),
-                metadata=doc.get('metadata')
+                doc_metadata=doc.get('metadata')
             )
 
         logger.info("All documents imported successfully!")

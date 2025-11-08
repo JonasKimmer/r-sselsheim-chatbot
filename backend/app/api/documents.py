@@ -33,7 +33,7 @@ async def create_document(
             content=request.content,
             category=request.category,
             source=request.source,
-            metadata=request.metadata
+            doc_metadata=request.doc_metadata
         )
 
         return DocumentResponse.model_validate(document)
