@@ -7,6 +7,13 @@ from sqlalchemy.orm import Session
 import ollama
 from ..models.chat import ChatSession, ChatMessage, MessageRole
 from .rag_service import RAGService
+from .api_helper import (
+    get_weather_info,
+    find_location,
+    find_nearby_places,
+    get_speed_camera_info,
+    detect_api_intent
+)
 from ..config import get_settings
 
 logger = logging.getLogger(__name__)
@@ -20,6 +27,9 @@ class OllamaChatService:
 
 Deine Aufgaben:
 - Beantworte Fragen zu städtischen Dienstleistungen, Öffnungszeiten und Verfahren
+- Liefere aktuelle Wetterinformationen und Vorhersagen für Rüsselsheim
+- Helfe bei der Suche nach Adressen und Orten in Rüsselsheim
+- Informiere über Blitzer und Verkehrssicherheit
 - Erkenne die Absicht des Benutzers (Information, Terminvereinbarung, Formulare)
 - Sei höflich, präzise und verwende die bereitgestellten Informationen
 - Wenn du etwas nicht weißt, gib das ehrlich zu und verweise auf die entsprechende Stelle
@@ -28,6 +38,9 @@ Kategorien:
 - Bürgerservice: Personalausweis, Meldewesen, etc.
 - KFZ-Zulassung: Anmeldung, Ummeldung, Abmeldung
 - Abfallwirtschaft: Müllabfuhr, Sperrmüll, Recycling
+- Wetter: Aktuelle Wetterdaten und Vorhersagen
+- Orte & Adressen: Geocoding und Umgebungssuche
+- Verkehr: Blitzer und Verkehrsinformationen
 - Termine: Terminvereinbarungen
 - Allgemein: Öffnungszeiten, Kontakte, Standorte
 
@@ -144,6 +157,26 @@ Antworte auf Deutsch und sei präzise."""
             # Detect intent
             intent = self.detect_intent(message)
 
+            # Check if API call is needed
+            api_intent = detect_api_intent(message)
+            api_data = None
+
+            if api_intent == "weather":
+                logger.info("Processing weather request")
+                api_data = await get_weather_info()
+            elif api_intent == "location":
+                logger.info("Processing location request")
+                api_data = await find_location(message)
+            elif api_intent == "nearby":
+                logger.info("Processing nearby search")
+                for term in ["restaurant", "apotheke", "parkplatz", "supermarkt", "café", "arzt"]:
+                    if term in message.lower():
+                        api_data = await find_nearby_places(term)
+                        break
+            elif api_intent == "traffic":
+                logger.info("Processing traffic/speed camera request")
+                api_data = await get_speed_camera_info()
+
             # Get relevant context from RAG
             context = self.rag_service.get_context_for_query(message)
 
@@ -164,14 +197,24 @@ Antworte auf Deutsch und sei präzise."""
                     "content": msg.content
                 })
 
-            # Build user message with context
+            # Build user message with context and API data
             user_message = message
-            if context:
-                user_message = f"""Kontext aus der Wissensdatenbank:
-{context}
 
----
-Benutzerfrage: {message}"""
+            parts = []
+
+            if api_data:
+                parts.append(f"API-Daten:\n{api_data}\n")
+
+            if context:
+                parts.append(f"Kontext aus der Wissensdatenbank:\n{context}\n")
+
+            if parts:
+                parts.append(f"---\nBenutzerfrage: {message}")
+                user_message = "\n".join(parts)
+
+            # If we have API data, add instruction to use it
+            if api_data:
+                user_message += "\n\nBitte nutze die oben bereitgestellten API-Daten, um die Frage zu beantworten."
 
             messages.append({
                 "role": "user",
