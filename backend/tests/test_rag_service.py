@@ -68,13 +68,27 @@ class TestRAGService:
         # Arrange
         query = "Wo beantrage ich einen Personalausweis?"
 
-        # Mock database query result
-        mock_result = Mock()
-        mock_result.fetchall.return_value = [
-            ("Personalausweis beantragen", "Gehen Sie zum Bürgerbüro...", 0.85),
-            ("Reisepass beantragen", "Auch im Bürgerbüro möglich...", 0.72)
-        ]
-        mock_db.execute.return_value = mock_result
+        # Mock database query result - simulate Row objects
+        mock_row1 = Mock()
+        mock_row1.id = 1
+        mock_row1.title = "Personalausweis beantragen"
+        mock_row1.content = "Gehen Sie zum Bürgerbüro mit Ihrem alten Ausweis."
+        mock_row1.category = "verwaltung"
+        mock_row1.source = "buergerbuero.de"
+        mock_row1.doc_metadata = {}
+        mock_row1.similarity = 0.85
+
+        mock_row2 = Mock()
+        mock_row2.id = 2
+        mock_row2.title = "Reisepass beantragen"
+        mock_row2.content = "Auch im Bürgerbüro möglich mit Passfoto."
+        mock_row2.category = "verwaltung"
+        mock_row2.source = "buergerbuero.de"
+        mock_row2.doc_metadata = {}
+        mock_row2.similarity = 0.72
+
+        # Mock execute to return iterable rows
+        mock_db.execute.return_value = [mock_row1, mock_row2]
 
         # Act
         context = rag_service.get_context_for_query(query, top_k=2)
