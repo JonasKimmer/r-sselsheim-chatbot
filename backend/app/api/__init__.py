@@ -7,6 +7,7 @@ from .weather import router as weather_router
 from .maps import router as maps_router
 from .traffic import router as traffic_router
 from .monitoring import router as monitoring_router
+from .scraper import router as scraper_router
 
 __all__ = [
     "chat_router",
@@ -15,5 +16,6 @@ __all__ = [
     "weather_router",
     "maps_router",
     "traffic_router",
-    "monitoring_router"
+    "monitoring_router",
+    "scraper_router"
 ]

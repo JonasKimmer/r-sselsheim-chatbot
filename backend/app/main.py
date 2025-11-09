@@ -14,7 +14,8 @@ from .api import (
     weather_router,
     maps_router,
     traffic_router,
-    monitoring_router
+    monitoring_router,
+    scraper_router
 )
 
 # Configure logging
@@ -70,6 +71,7 @@ app.include_router(weather_router)
 app.include_router(maps_router)
 app.include_router(traffic_router)
 app.include_router(monitoring_router)
+app.include_router(scraper_router)
 
 
 @app.get("/")
