@@ -193,8 +193,11 @@ class TestHolidaysService:
         # Assert
         assert isinstance(result, str)
         assert len(result) > 0
-        # Should mention a date or month
-        assert any(month in result for month in ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"])
+        # Should contain emoji and holiday info
+        assert "🎉" in result or "Feiertag" in result
+        # Should contain a date in format DD.MM.YYYY
+        import re
+        assert re.search(r'\d{2}\.\d{2}\.\d{4}', result) is not None
 
 
 class TestAPIHelper:

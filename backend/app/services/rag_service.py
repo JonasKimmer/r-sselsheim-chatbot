@@ -147,19 +147,22 @@ class RAGService:
     def get_context_for_query(
         self,
         query: str,
-        max_context_length: int = 3000
+        max_context_length: int = 3000,
+        top_k: Optional[int] = None
     ) -> str:
         """Get relevant context for a query.
 
         Args:
             query: User query
             max_context_length: Maximum context length in characters
+            top_k: Number of documents to retrieve (defaults to 5)
 
         Returns:
             Formatted context string
         """
         try:
-            documents = self.search_similar_documents(query, limit=5)
+            limit = top_k if top_k is not None else 5
+            documents = self.search_similar_documents(query, limit=limit)
 
             if not documents:
                 return ""
@@ -184,3 +187,45 @@ class RAGService:
         except Exception as e:
             logger.error(f"Error getting context: {e}")
             return ""
+
+    def delete_document(self, doc_id: int) -> bool:
+        """Delete a document from the database.
+
+        Args:
+            doc_id: Document ID
+
+        Returns:
+            True if deleted, False if not found
+        """
+        try:
+            document = self.db.query(Document).filter(Document.id == doc_id).first()
+
+            if not document:
+                logger.warning(f"Document {doc_id} not found")
+                return False
+
+            self.db.delete(document)
+            self.db.commit()
+
+            logger.info(f"Document {doc_id} deleted")
+            return True
+
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Error deleting document: {e}")
+            raise
+
+    def get_all_documents(self) -> List[Document]:
+        """Get all documents from the database.
+
+        Returns:
+            List of all documents
+        """
+        try:
+            documents = self.db.query(Document).all()
+            logger.info(f"Retrieved {len(documents)} documents")
+            return documents
+
+        except Exception as e:
+            logger.error(f"Error getting all documents: {e}")
+            raise
