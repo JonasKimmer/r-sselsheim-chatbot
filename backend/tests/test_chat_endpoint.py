@@ -11,7 +11,7 @@ class TestChatEndpoint:
 
     async def test_chat_endpoint_exists(self):
         """Test: POST /api/chat endpoint is accessible."""
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
             response = await client.post("/api/chat", json={
                 "session_id": "test-session-1",
                 "message": "Hallo"
@@ -21,7 +21,7 @@ class TestChatEndpoint:
 
     async def test_chat_with_weather_question(self):
         """Test: Weather question triggers weather API."""
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
             response = await client.post("/api/chat", json={
                 "session_id": "test-weather-1",
                 "message": "Wie ist das Wetter heute?"
@@ -36,7 +36,7 @@ class TestChatEndpoint:
 
     async def test_chat_with_location_question(self):
         """Test: Location question triggers maps API."""
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
             response = await client.post("/api/chat", json={
                 "session_id": "test-location-1",
                 "message": "Wo liegt das Rathaus Rüsselsheim?"
@@ -50,7 +50,7 @@ class TestChatEndpoint:
         """Test: Multiple messages in same session are tracked."""
         session_id = "test-history-1"
 
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
             # First message
             response1 = await client.post("/api/chat", json={
                 "session_id": session_id,
@@ -69,7 +69,7 @@ class TestChatEndpoint:
 
     async def test_chat_invalid_request_missing_message(self):
         """Test: Request without message field returns error."""
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
             response = await client.post("/api/chat", json={
                 "session_id": "test-invalid-1"
                 # Missing "message" field
@@ -80,7 +80,7 @@ class TestChatEndpoint:
 
     async def test_chat_invalid_request_missing_session_id(self):
         """Test: Request without session_id returns error."""
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
             response = await client.post("/api/chat", json={
                 "message": "Hallo"
                 # Missing "session_id" field
@@ -90,7 +90,7 @@ class TestChatEndpoint:
 
     async def test_chat_response_structure(self):
         """Test: Response has correct structure."""
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(app=app, base_url="http://test", follow_redirects=True) as client:
             response = await client.post("/api/chat", json={
                 "session_id": "test-structure-1",
                 "message": "Test"
