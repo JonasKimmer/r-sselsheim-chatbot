@@ -40,3 +40,4 @@ httpx==0.25.2  # Downgraded for ollama 0.1.7 compatibility (also used for weathe
 black==24.1.1
 flake8==7.0.0
 mypy==1.8.0
+locust==2.20.0  # Load testing

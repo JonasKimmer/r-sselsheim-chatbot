@@ -3,6 +3,8 @@
 import logging
 import httpx
 from typing import Dict, Optional
+from .cache_service import cached
+from .retry_service import async_retry
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +15,8 @@ RUESSELSHEIM_LON = 8.4189
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
 
+@cached(ttl_seconds=600, key_prefix="weather")  # Cache for 10 minutes
+@async_retry(max_attempts=3, delay_seconds=1.0, backoff_factor=2.0)
 async def get_weather(
     lat: Optional[float] = None,
     lon: Optional[float] = None,

@@ -3,6 +3,8 @@
 import logging
 import httpx
 from typing import Dict, List, Optional
+from .cache_service import cached
+from .retry_service import async_retry
 
 logger = logging.getLogger(__name__)
 
@@ -10,6 +12,8 @@ NOMINATIM_URL = "https://nominatim.openstreetmap.org"
 USER_AGENT = "RuesselsheimChatbot/1.0"
 
 
+@cached(ttl_seconds=1800, key_prefix="geocode")  # Cache for 30 minutes
+@async_retry(max_attempts=3, delay_seconds=1.0, backoff_factor=2.0)
 async def geocode_address(address: str, limit: int = 5) -> List[Dict]:
     """
     Geocode an address to coordinates.
@@ -65,6 +69,8 @@ async def geocode_address(address: str, limit: int = 5) -> List[Dict]:
         raise Exception(f"Fehler beim Geocoding: {str(e)}")
 
 
+@cached(ttl_seconds=3600, key_prefix="reverse_geocode")  # Cache for 1 hour
+@async_retry(max_attempts=3, delay_seconds=1.0, backoff_factor=2.0)
 async def reverse_geocode(lat: float, lon: float) -> Dict:
     """
     Reverse geocode coordinates to address.
@@ -117,6 +123,8 @@ async def reverse_geocode(lat: float, lon: float) -> Dict:
         raise Exception(f"Fehler beim Reverse Geocoding: {str(e)}")
 
 
+@cached(ttl_seconds=900, key_prefix="nearby")  # Cache for 15 minutes
+@async_retry(max_attempts=3, delay_seconds=1.0, backoff_factor=2.0)
 async def search_nearby(
     lat: float,
     lon: float,

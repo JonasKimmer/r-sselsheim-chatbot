@@ -7,6 +7,7 @@ from typing import List
 from ..db import get_db
 from ..config import get_settings
 from .schemas import ChatRequest, ChatResponse, ChatHistoryResponse
+from ..middleware.security import InputValidator
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/chat", tags=["chat"])
@@ -41,14 +42,15 @@ async def chat(
         Chat response
     """
     try:
-        chat_service = get_chat_service(db)
+        # Validate and sanitize inputs
+        session_id = InputValidator.validate_session_id(request.session_id) if request.session_id else ""
+        message = InputValidator.sanitize_text(request.message, max_length=5000)
 
-        # Use provided session_id or create new session
-        session_id = request.session_id or ""
+        chat_service = get_chat_service(db)
 
         result = await chat_service.chat(
             session_id=session_id,
-            message=request.message
+            message=message
         )
 
         return ChatResponse(**result)
@@ -73,8 +75,11 @@ async def get_history(
         Chat history
     """
     try:
+        # Validate session ID
+        validated_session_id = InputValidator.validate_session_id(session_id)
+
         chat_service = get_chat_service(db)
-        messages = chat_service.get_session_history(session_id)
+        messages = chat_service.get_session_history(validated_session_id)
 
         return [
             ChatHistoryResponse(

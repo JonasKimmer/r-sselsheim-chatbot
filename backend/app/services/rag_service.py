@@ -82,7 +82,8 @@ class RAGService:
         self,
         query: str,
         limit: int = 5,
-        category: Optional[str] = None
+        category: Optional[str] = None,
+        min_similarity: float = 0.0
     ) -> List[Dict[str, Any]]:
         """Search for similar documents using semantic search.
 
@@ -90,6 +91,7 @@ class RAGService:
             query: Search query
             limit: Maximum number of results
             category: Optional category filter
+            min_similarity: Minimum similarity score (0.0-1.0)
 
         Returns:
             List of similar documents with similarity scores
@@ -110,6 +112,7 @@ class RAGService:
                     1 - (embedding <=> :query_embedding) as similarity
                 FROM documents
                 WHERE (:category IS NULL OR category = :category)
+                  AND (1 - (embedding <=> :query_embedding)) >= :min_similarity
                 ORDER BY embedding <=> :query_embedding
                 LIMIT :limit
             """)
@@ -120,6 +123,7 @@ class RAGService:
                 {
                     "query_embedding": str(query_embedding),
                     "category": category,
+                    "min_similarity": min_similarity,
                     "limit": limit
                 }
             )
@@ -144,11 +148,152 @@ class RAGService:
             logger.error(f"Error searching documents: {e}")
             raise
 
+    def hybrid_search(
+        self,
+        query: str,
+        limit: int = 5,
+        category: Optional[str] = None,
+        semantic_weight: float = 0.7
+    ) -> List[Dict[str, Any]]:
+        """
+        Hybrid search combining keyword and semantic search.
+
+        Args:
+            query: Search query
+            limit: Maximum number of results
+            category: Optional category filter
+            semantic_weight: Weight for semantic search (0.0-1.0), keyword weight is (1 - semantic_weight)
+
+        Returns:
+            List of documents ranked by combined score
+        """
+        try:
+            # Get semantic search results
+            semantic_results = self.search_similar_documents(query, limit=limit * 2, category=category)
+
+            # Get keyword search results using PostgreSQL full-text search
+            keyword_results = self._keyword_search(query, limit=limit * 2, category=category)
+
+            # Combine and rank results
+            combined_scores: Dict[int, Dict[str, Any]] = {}
+
+            # Add semantic scores
+            for i, doc in enumerate(semantic_results):
+                doc_id = doc["id"]
+                # Normalize score based on rank (higher rank = lower score)
+                rank_score = 1.0 - (i / max(len(semantic_results), 1))
+                combined_scores[doc_id] = {
+                    **doc,
+                    "semantic_score": doc["similarity"],
+                    "keyword_score": 0.0,
+                    "rank_score": rank_score * semantic_weight
+                }
+
+            # Add keyword scores
+            keyword_weight = 1.0 - semantic_weight
+            for i, doc in enumerate(keyword_results):
+                doc_id = doc["id"]
+                rank_score = 1.0 - (i / max(len(keyword_results), 1))
+
+                if doc_id in combined_scores:
+                    combined_scores[doc_id]["keyword_score"] = doc["score"]
+                    combined_scores[doc_id]["rank_score"] += rank_score * keyword_weight
+                else:
+                    combined_scores[doc_id] = {
+                        **doc,
+                        "semantic_score": 0.0,
+                        "keyword_score": doc["score"],
+                        "rank_score": rank_score * keyword_weight
+                    }
+
+            # Sort by combined score
+            results = sorted(
+                combined_scores.values(),
+                key=lambda x: x["rank_score"],
+                reverse=True
+            )[:limit]
+
+            logger.info(f"Hybrid search for '{query}': {len(results)} results")
+            return results
+
+        except Exception as e:
+            logger.error(f"Error in hybrid search: {e}")
+            # Fallback to semantic search only
+            return self.search_similar_documents(query, limit=limit, category=category)
+
+    def _keyword_search(
+        self,
+        query: str,
+        limit: int = 5,
+        category: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Keyword-based full-text search.
+
+        Args:
+            query: Search query
+            limit: Maximum number of results
+            category: Optional category filter
+
+        Returns:
+            List of documents with keyword match scores
+        """
+        try:
+            sql = text("""
+                SELECT
+                    id,
+                    title,
+                    content,
+                    category,
+                    source,
+                    doc_metadata,
+                    ts_rank(
+                        to_tsvector('german', title || ' ' || content),
+                        plainto_tsquery('german', :query)
+                    ) as score
+                FROM documents
+                WHERE (:category IS NULL OR category = :category)
+                  AND (
+                    to_tsvector('german', title || ' ' || content) @@
+                    plainto_tsquery('german', :query)
+                  )
+                ORDER BY score DESC
+                LIMIT :limit
+            """)
+
+            result = self.db.execute(
+                sql,
+                {
+                    "query": query,
+                    "category": category,
+                    "limit": limit
+                }
+            )
+
+            documents = []
+            for row in result:
+                documents.append({
+                    "id": row.id,
+                    "title": row.title,
+                    "content": row.content,
+                    "category": row.category,
+                    "source": row.source,
+                    "doc_metadata": row.doc_metadata,
+                    "score": float(row.score)
+                })
+
+            return documents
+
+        except Exception as e:
+            logger.warning(f"Keyword search failed: {e}, returning empty list")
+            return []
+
     def get_context_for_query(
         self,
         query: str,
         max_context_length: int = 3000,
-        top_k: Optional[int] = None
+        top_k: Optional[int] = None,
+        use_hybrid_search: bool = False
     ) -> str:
         """Get relevant context for a query.
 
@@ -156,13 +301,19 @@ class RAGService:
             query: User query
             max_context_length: Maximum context length in characters
             top_k: Number of documents to retrieve (defaults to 5)
+            use_hybrid_search: Use hybrid search instead of semantic-only
 
         Returns:
             Formatted context string
         """
         try:
             limit = top_k if top_k is not None else 5
-            documents = self.search_similar_documents(query, limit=limit)
+
+            # Choose search method
+            if use_hybrid_search:
+                documents = self.hybrid_search(query, limit=limit)
+            else:
+                documents = self.search_similar_documents(query, limit=limit)
 
             if not documents:
                 return ""

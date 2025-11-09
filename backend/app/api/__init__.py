@@ -6,6 +6,7 @@ from .health import router as health_router
 from .weather import router as weather_router
 from .maps import router as maps_router
 from .traffic import router as traffic_router
+from .monitoring import router as monitoring_router
 
 __all__ = [
     "chat_router",
@@ -13,5 +14,6 @@ __all__ = [
     "health_router",
     "weather_router",
     "maps_router",
-    "traffic_router"
+    "traffic_router",
+    "monitoring_router"
 ]

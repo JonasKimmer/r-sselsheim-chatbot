@@ -13,7 +13,8 @@ from .api import (
     health_router,
     weather_router,
     maps_router,
-    traffic_router
+    traffic_router,
+    monitoring_router
 )
 
 # Configure logging
@@ -68,6 +69,7 @@ app.include_router(documents_router)
 app.include_router(weather_router)
 app.include_router(maps_router)
 app.include_router(traffic_router)
+app.include_router(monitoring_router)
 
 
 @app.get("/")
