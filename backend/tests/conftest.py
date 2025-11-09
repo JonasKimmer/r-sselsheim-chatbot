@@ -10,7 +10,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Set test environment variables
 os.environ["ENVIRONMENT"] = "test"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"  # In-memory DB for tests
+# Use PostgreSQL from docker-compose (not SQLite)
+# DATABASE_URL is already set by docker-compose.yml
 os.environ["LLM_PROVIDER"] = "ollama"
 os.environ["EMBEDDING_PROVIDER"] = "local"
 
@@ -19,7 +20,6 @@ os.environ["EMBEDDING_PROVIDER"] = "local"
 def test_config():
     """Provide test configuration."""
     return {
-        "database_url": "sqlite:///:memory:",
         "llm_provider": "ollama",
         "embedding_provider": "local",
         "environment": "test"
