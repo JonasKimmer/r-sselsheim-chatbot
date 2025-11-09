@@ -8,7 +8,7 @@ from ..db import get_db
 from .schemas import HealthResponse
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["health"])
+router = APIRouter(prefix="/api", tags=["health"])
 
 
 @router.get("/health", response_model=HealthResponse)
